@@ -68,6 +68,10 @@ function convertTimestampToHumanReadableString(timestamp: number) {
     return moment(timestamp).format("MM/DD HH:mm")
 }
 
+function logger(...args: any[]) {
+    console.log(new Date(), ...args)
+}
+
 // hubot.Robot<Adapter> の Adapter には 本来Adapterの型を入れるべきだが
 // hubot-slackの型定義がないので any にしている
 module.exports = (robot: hubot.Robot<any>): void => {
@@ -77,6 +81,7 @@ module.exports = (robot: hubot.Robot<any>): void => {
         const res = await client.get<ApiResponseWrapper<ApiSalmonJobInfo[]>>("/coop/schedule")
         if (res.status !== 200) {
             msg.reply("データ取得に失敗しました。(HTTP-"+res.status+")")
+            logger("salmon", msg.message.user.id, "failed", res.status)
             return
         }
         if (res.data.result.length === 0) {
@@ -98,6 +103,7 @@ module.exports = (robot: hubot.Robot<any>): void => {
                 })
             }
         })
+        logger("salmon", msg.message.user.id, "success")
         msg.reply(replyStr.join("\n"))
     })
 
@@ -107,9 +113,9 @@ module.exports = (robot: hubot.Robot<any>): void => {
         const res = await client.get<ApiResponseWrapper<{[key in "gachi" | "league" | "regular"]: ApiBattleSchedule[]}>>("/schedule")
         if (res.status !== 200) {
             msg.reply("データ取得に失敗しました。(HTTP-"+res.status+")")
+            logger("stage", msg.message.user.id, "failed", res.status)
             return
         }
-        console.log(res.data)
         const nowDate = Date.now()
         var replyStr = ["ステージ情報"]
         function stageInfo(schedules: ApiBattleSchedule[], isGachi = false) {
@@ -127,6 +133,7 @@ module.exports = (robot: hubot.Robot<any>): void => {
         stageInfo(res.data.result.gachi, true)
         replyStr.push("--- リーグマッチ ---")
         stageInfo(res.data.result.league, true)
+        logger("stage", msg.message.user.id, "success")
         msg.reply(replyStr.join("\n"))
     })
 
