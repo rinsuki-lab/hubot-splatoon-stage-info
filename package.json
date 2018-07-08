@@ -1,0 +1,22 @@
+{
+  "name": "hubot-splatoon-stage-info",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "hubot --adapter slack",
+    "build": "tsc",
+    "clean": "rm scripts/*.js"
+  },
+  "devDependencies": {
+    "@types/hubot": "^2.19.2",
+    "@types/node": "^10.5.2",
+    "typescript": "^2.9.2"
+  },
+  "dependencies": {
+    "axios": "^0.18.0",
+    "hubot": "^2.19.0",
+    "hubot-slack": "^4.5.2",
+    "moment": "^2.22.2"
+  }
+}
