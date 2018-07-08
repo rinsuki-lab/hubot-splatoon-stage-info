@@ -81,6 +81,7 @@ module.exports = (robot: hubot.Robot<any>): void => {
         }
         if (res.data.result.length === 0) {
             msg.reply("サーモンラン情報がありませんでした。")
+            return
         }
         const nowDate = Date.now()
         var replyStr = ["サーモンラン スケジュール"]
