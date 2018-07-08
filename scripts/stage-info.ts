@@ -106,7 +106,7 @@ module.exports = (robot: hubot.Robot<any>): void => {
         // TODO: キャッシュする
         const res = await client.get<ApiResponseWrapper<{[key in "gachi" | "league" | "regular"]: ApiBattleSchedule[]}>>("/schedule")
         if (res.status !== 200) {
-            msg.reply("ステージ情報の取得に失敗しました。")
+            msg.reply("データ取得に失敗しました。(HTTP-"+res.status+")")
             return
         }
         console.log(res.data)
