@@ -116,23 +116,27 @@ module.exports = (robot: hubot.Robot<any>): void => {
             logger("stage", msg.message.user.id, "failed", res.status)
             return
         }
+        if (res.data.result.regular.length === 0) {
+            msg.reply("ステージ情報が空でした。")
+            logger("stage", msg.message.user.id, "failed-empty")
+            return
+        }
         const nowDate = Date.now()
-        var replyStr = ["ステージ情報"]
-        function stageInfo(schedules: ApiBattleSchedule[], isGachi = false) {
+        var replyStr = ["ステージ情報 (〜"+convertTimestampToHumanReadableString(res.data.result.regular[0].end_t * 1000)+")"]
+        function stageInfo(name: string, schedules: ApiBattleSchedule[], isGachi = false) {
             schedules.forEach((info, index) => {
-                if (index >= 3) return
-                const start = info.start_t * 1000
-                const end = info.end_t * 1000
-                const isNowAvailable = start <= nowDate
-                replyStr.push(`${isNowAvailable ? "現在" : ":soon:"} ${isGachi ? info.rule.replace("バトル", "\u3000") : ""} ${convertTimestampToHumanReadableString(start)} 〜 ${convertTimestampToHumanReadableString(end)} ステージ: ${info.maps.join(" / ")}`)
+                if (index > 0) return
+                info.maps.forEach((map, index) => {
+                    const header = index === 0 ? `${info.rule.includes("バトル") ? "\u3000" : ""}${name}${isGachi ? ("\u200B*"+info.rule+"*\u200B").replace("バトル", "").replace("ガチ", "") : ""}` : "\u3000\u3000\u3000\u3000\u3000\u3000"
+                    replyStr.push(`${header} : ${map}`)
+
+                })
+                // replyStr.push(`${isNowAvailable ? "現在" : ":soon:"}  ${convertTimestampToHumanReadableString(start)} 〜 ${convertTimestampToHumanReadableString(end)} ステージ: ${info.maps.join(" / ")}`)
             })
         }
-        replyStr.push("--- ナワバリ ---")
-        stageInfo(res.data.result.regular)
-        replyStr.push("--- ガチ ---")
-        stageInfo(res.data.result.gachi, true)
-        replyStr.push("--- リーグマッチ ---")
-        stageInfo(res.data.result.league, true)
+        stageInfo("\u3000ナワバリ", res.data.result.regular)
+        stageInfo("\u3000ガチ", res.data.result.gachi, true)
+        stageInfo("リグマ", res.data.result.league, true)
         logger("stage", msg.message.user.id, "success")
         msg.reply(replyStr.join("\n"))
     })
